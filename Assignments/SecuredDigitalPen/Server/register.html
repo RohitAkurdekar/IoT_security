@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+    <body>
+    <h2>Register</h2>    
+    <div id="msgDiv"></div>
+    <form action="registerUser" method="post" >
+        Username: <input type="text" name="uname" id=""> <br> <br>
+        Password: <input type="password" name="pwd" id=""> <br> <br>
+        Email   : <input type="email" name="email" id=""> <br> <br>
+        <button>Register</button>
+    </form>
+    <br> 
+    <button onclick="route();">Home</button>
+</body>
+
+<script>
+    function route()
+    {
+        document.location = "/"
+    }
+</script>
+</html>

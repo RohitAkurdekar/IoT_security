@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <h1>Welcome to Digital Pen Login page</h1>
+        <form action="validLogin" method="post" >
+            Username <input type="text" name="uname" id=""> <br> <br>
+            Password <input type="password" name="pwd" id=""> <br> <br>
+            <button>Login</button>
+        </form>
+        <br> 
+        <button onclick="route(1);">Register</button> &ensp;
+        <button onclick="route(2);">Activate</button>
+    </body>
+
+    <script>
+        function route(location)
+        {
+            if(location == 1)
+            {
+                location = "/register"
+            }
+            else if(location == 2)
+            {
+                location = "/activate"
+            }
+            document.location = location
+        }
+    </script>
+</html>

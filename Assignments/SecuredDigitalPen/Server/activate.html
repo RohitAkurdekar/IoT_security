@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <h2> Activate your Pen: </h2>
+
+        <form action="activatePen" method="post" >
+            Username: <input type="text" name="uname" id=""> <br> <br>
+            Password: <input type="password" name="pwd" id=""> <br> <br>
+            PenID   : <input type="number" name="PID" id="" min="1"> <br> <br>
+            <button>Activate</button>
+        </form>
+        <br> 
+        <button onclick="route();">Home</button>
+    </body>
+
+    <script>
+        function route()
+        {
+            document.location = "/"
+        }
+    </script>
+</html>
