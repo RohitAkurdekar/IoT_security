@@ -5,6 +5,10 @@ Create a Javascript array that contains username and password as comma separated
 Enter 3 user details.
 */
 
+let myfile = require("fs");
+// var popup = require("popups");
+
+
 // ----------------------- MQTT -----------------------------------------
 
 USER = "USER_NAME"
@@ -22,12 +26,12 @@ const PORT = '1883';
 
 // ----------------------- LOGIN -----------------------------------------
 
-const myDb = require("./database")
+// const myDb = require("./database")
 
-const userDB = [{"uname":"User1","password":"password","topic":"abcde"},
-             {"uname":"Rohit","password":"password","topic":"xyzer"},
-             {"uname":"Amit","password":"password","topic":"pqrst"},
-             {"uname":"Neha","password":"password","topic":"lmnop"}]
+// const userDB = [{"uname":"User1","password":"password","topic":"abcde"},
+//              {"uname":"Rohit","password":"password","topic":"xyzer"},
+//              {"uname":"Amit","password":"password","topic":"pqrst"},
+//              {"uname":"Neha","password":"password","topic":"lmnop"}]
 
 // ----------------------- Server -----------------------------------------
 
@@ -40,6 +44,8 @@ app.use(body_parser.urlencoded({extended: false}));
 app.use(ExpressJs.json())
 
 const { check, validationResult } = require("express-validator/src");
+const { type } = require("os");
+const { message } = require("statuses");
 
 
 // ----------------------- Web Requests -----------------------------------------
@@ -80,104 +86,180 @@ app.post("/validLogin",
     let password = req.body.pwd;
     let found = 0;
 
-    const errors = validationResult(req);
- 
-    // If some error occurs, then this block of code will run
 
-    if (!errors.isEmpty()) {
-        resp.send(errors)
-    }
-    else   
-    {
-        for(user of userDB)
+
+   
+    // Read file data
+    myfile.readFile("usercred.txt",(err,data)=>{
+        if(err)     console.log(err.message);
+        else
         {
-            if(user.uname == uname)
+            userDB = data.toString();
+            // console.log(typeof(Array(userDB)));
+            userDB = userDB.split(";");
+            // console.log(userDB);
+            for(data of userDB)
             {
-                if(user.password == password)
-                {
-                    found =1;
-                    resp.redirect("/data")
+                // console.log(JSON.parse(data).uname);
+            }
+
+        }
+
+        const errors = validationResult(req);
     
-                    myTopic = user.topic;
-                    // USER = user.uname;
+        // If some error occurs, then this block of code will run
 
- 
-                const subscriber = mqtt.connect(HOST + PORT,{
-                    protocolId:"MQTT",
-                    protocolVersion:4,
-                    username:'diot',
-                    password:'diot',
-                    clean:false,
-                    clientId:"diot003",
-                    qos:2
-                });
-            
-                // MQTT Topic to Publish data to
-            
-            
-                // USER = user
-            
-                const TOPIC = 'cdac/rohit/' + myTopic;
-            
-                console.log("Subscribed to: ",TOPIC);
-            
-                const WILL_TOPIC = "cdac/device/dead"
-            
-                // Event to Check BROKER connection
-                subscriber.on('connect',()=>{
-                    
-                    console.log("Connected to MQTT Broker!");
-            
-                    // Publish the data
-                    subscriber.subscribe([TOPIC],{qos:1}, (err, granted)=>{
-                        if(!err){
-                            // console.log(`Granted. Topic: ${granted[0].topic}, QoS: ${granted[0].qos}`);
-                        }
-                    });
-                })
-            
-                subscriber.on('message',(topic,data)=>{
-                    console.log(`${data.toString()}`);
-                    // document.getElementById("dataDiv").innerHTML = data.toString();
-                    // resp.send(data.toString());
-                    if(typeof document !== "undefined")
-                    {
-                        document.getElementById("dataDiv").innerHTML = data.toString();
-                    }
-                    else
-                    {
-                        console.log("doc not found");
-                        // resp.send(data.toString());
-                    }
-                })
-
-                }
-                else found =2;
-
-                break;
-            }
+        if (!errors.isEmpty()) {
+            resp.send(errors)
         }
-        switch(found)
+        else   
         {
-            case 0:{
-                resp.send("User not found");
-                break;
-            }
-            case 1:{
-                // resp.sendFile("data.html",{root:__dirname});
+            for(user of userDB)
+            {
+                user = JSON.parse(user);
+                if(user.uname == uname)
+                {
+                    if(user.password == password)
+                    {
+                        found =1;
+                        resp.redirect("/data")
+        
+                        myTopic = user.topic;
+                        // USER = user.uname;
 
-                // resp.redirect("/data")
+    
+                    const subscriber = mqtt.connect(HOST + PORT,{
+                        protocolId:"MQTT",
+                        protocolVersion:4,
+                        username:'diot',
+                        password:'diot',
+                        clean:true,
+                        clientId:"diot003",
+                        qos:2
+                    });
+                
+                    // MQTT Topic to Publish data to
+                
+                
+                    // USER = user
+                
+                    const TOPIC = 'cdac/rohit/' + myTopic;
+                
+                    console.log("Subscribed to: ",TOPIC);
+                
+                    const WILL_TOPIC = "cdac/device/dead"
+                
+                    // Event to Check BROKER connection
+                    subscriber.on('connect',()=>{
+                        
+                        console.log("Connected to MQTT Broker!");
+                
+                        // Publish the data
+                        subscriber.subscribe([TOPIC],{qos:1}, (err, granted)=>{
+                            if(!err){
+                                // console.log(`Granted. Topic: ${granted[0].topic}, QoS: ${granted[0].qos}`);
+                            }
+                        });
+                    })
+                
+                    subscriber.on('message',(topic,data)=>{
+                        console.log(`${data.toString()}`);
+                        // document.getElementById("dataDiv").innerHTML = data.toString();
+                        // resp.send(data.toString());
+                    
+                        resp.removeHeader();
+                        resp.setHeader('Content-Type', 'application/text')
+                        // resp.status(200).json({success: true, message: data});
+                        resp.send(data);
+                        // if(typeof document !== "undefined")
+                        // {
+                        //     document.getElementById("dataDiv").innerHTML = data.toString();
+                        // }
+                        // else
+                        // {
+                        //     console.log("doc not found");
+                        //     // resp.send(data.toString());
+                        // }
+                    })
 
-                // abc = document.getElementById("dataDiv");
-                // abc.innerHTML = "andsjd";
-                break;
+                    }
+                    else found =2;
+
+                    break;
+                }
             }
-            case 2:{
-                resp.send("Invalid password");
-                break;
+            switch(found)
+            {
+                case 0:{
+                    resp.send("User not found");
+                    break;
+                }
+                case 1:{
+                    // resp.sendFile("data.html",{root:__dirname});
+
+                    // resp.redirect("/data")
+
+                    // abc = document.getElementById("dataDiv");
+                    // abc.innerHTML = "andsjd";
+                    break;
+                }
+                case 2:{
+                    resp.send("Invalid password");
+                    break;
+                }
             }
         }
-    }
+
+    })
+});
+
+
+
+// ----------------------- Register user -----------------------------------------
+
+app.post("/registerUser",(req,resp)=>{
+
+    let uname = req.body.uname;
+    let password = req.body.pwd;
+    
+
+    // Read file data
+    myfile.readFile("usercred.txt",(err,data)=>{
+        if(err)     console.log(err.message);
+        else
+        {
+            var result           = '';
+            var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            var charactersLength = characters.length;
+            for ( var i = 0; i < 5; i++ ) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+    
+            userDB = data.toString();
+            // console.log(typeof(Array(userDB)));
+            // userDB = userDB.split(";");
+            var myData = ';{"uname":"' + uname +'","password":"' + password +'","topic:"' +result+'"}'
+            userDB += myData;
+            console.log(userDB);
+
+            myfile.writeFile("usercred.txt",userDB.toString(),(err)=>{
+                if(err)
+                {
+                    console.log(err);
+                }
+                else
+                {
+
+                //    resp.send({message:"Registration successfull.....!!!"});
+                }
+            });
+        }
+
+    })
+
+
+    resp.redirect("/");
+
 });
 
 app.listen(1337,()=>{console.log("http://localhost:1337")})

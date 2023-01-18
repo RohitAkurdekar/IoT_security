@@ -1,7 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
+  "description": "A digital pen that converts gestures or pen movements into characters and upload data to server over MQTT protocol.",
   "main": "app.js",
   "dependencies": {
     "accepts": "^1.3.8",
@@ -48,6 +48,7 @@
     "on-finished": "^2.4.1",
     "parseurl": "^1.3.3",
     "path-to-regexp": "^0.1.7",
+    "popup": "^0.0.3",
     "proxy-addr": "^2.0.7",
     "qs": "^6.11.0",
     "range-parser": "^1.2.1",
